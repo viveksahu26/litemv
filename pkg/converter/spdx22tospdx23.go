@@ -18,8 +18,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/interlynk-io/sbommv/pkg/logger"
-	"github.com/interlynk-io/sbommv/pkg/tcontext"
+	"github.com/viveksahu26/litemv/pkg/logger"
+	"github.com/viveksahu26/litemv/pkg/tcontext"
 	"github.com/spdx/tools-golang/convert"
 	"github.com/spdx/tools-golang/spdx/v2/v2_2"
 	"github.com/spdx/tools-golang/spdx/v2/v2_3"

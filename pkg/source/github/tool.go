@@ -21,8 +21,8 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/interlynk-io/sbommv/pkg/logger"
-	"github.com/interlynk-io/sbommv/pkg/tcontext"
+	"github.com/viveksahu26/litemv/pkg/logger"
+	"github.com/viveksahu26/litemv/pkg/tcontext"
 )
 
 // SupportedTools maps tool names to their GitHub repositories

@@ -15,10 +15,10 @@
 package utils
 
 import (
-	"github.com/interlynk-io/sbommv/pkg/logger"
-	"github.com/interlynk-io/sbommv/pkg/sbom"
-	"github.com/interlynk-io/sbommv/pkg/source"
-	"github.com/interlynk-io/sbommv/pkg/tcontext"
+	"github.com/viveksahu26/litemv/pkg/logger"
+	"github.com/viveksahu26/litemv/pkg/sbom"
+	"github.com/viveksahu26/litemv/pkg/source"
+	"github.com/viveksahu26/litemv/pkg/tcontext"
 )
 
 func ConstructProjectName(ctx tcontext.TransferMetadata, extProjectName, extProjectVersion, ownerRepoGithubName, repoVersion, assetPath string, content []byte, source string) (string, string) {

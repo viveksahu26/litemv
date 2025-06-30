@@ -18,19 +18,19 @@ package adapter
 import (
 	"fmt"
 
-	"github.com/interlynk-io/sbommv/pkg/iterator"
-	"github.com/interlynk-io/sbommv/pkg/logger"
-	"github.com/interlynk-io/sbommv/pkg/target/dependencytrack"
-	ofolder "github.com/interlynk-io/sbommv/pkg/target/folder"
+	"github.com/viveksahu26/litemv/pkg/iterator"
+	"github.com/viveksahu26/litemv/pkg/logger"
+	"github.com/viveksahu26/litemv/pkg/target/dependencytrack"
+	ofolder "github.com/viveksahu26/litemv/pkg/target/folder"
 
-	ifolder "github.com/interlynk-io/sbommv/pkg/source/folder"
-	"github.com/interlynk-io/sbommv/pkg/source/github"
-	is3 "github.com/interlynk-io/sbommv/pkg/source/s3"
-	os3 "github.com/interlynk-io/sbommv/pkg/target/s3"
+	ifolder "github.com/viveksahu26/litemv/pkg/source/folder"
+	"github.com/viveksahu26/litemv/pkg/source/github"
+	is3 "github.com/viveksahu26/litemv/pkg/source/s3"
+	os3 "github.com/viveksahu26/litemv/pkg/target/s3"
 
-	"github.com/interlynk-io/sbommv/pkg/target/interlynk"
-	"github.com/interlynk-io/sbommv/pkg/tcontext"
-	"github.com/interlynk-io/sbommv/pkg/types"
+	"github.com/viveksahu26/litemv/pkg/target/interlynk"
+	"github.com/viveksahu26/litemv/pkg/tcontext"
+	"github.com/viveksahu26/litemv/pkg/types"
 	"github.com/spf13/cobra"
 )
 

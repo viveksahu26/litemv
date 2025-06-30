@@ -21,9 +21,9 @@ import (
 	"strings"
 
 	githublib "github.com/google/go-github/v62/github"
-	"github.com/interlynk-io/sbommv/pkg/logger"
-	"github.com/interlynk-io/sbommv/pkg/tcontext"
-	"github.com/interlynk-io/sbommv/pkg/types"
+	"github.com/viveksahu26/litemv/pkg/logger"
+	"github.com/viveksahu26/litemv/pkg/tcontext"
+	"github.com/viveksahu26/litemv/pkg/types"
 	"golang.org/x/oauth2"
 )
 

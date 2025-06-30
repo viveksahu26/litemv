@@ -14,7 +14,7 @@
 
 package folder
 
-import "github.com/interlynk-io/sbommv/pkg/types"
+import "github.com/viveksahu26/litemv/pkg/types"
 
 type FolderConfig struct {
 	FolderPath string

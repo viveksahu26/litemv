@@ -21,8 +21,8 @@ import (
 	"time"
 
 	dtrack "github.com/DependencyTrack/client-go"
-	"github.com/interlynk-io/sbommv/pkg/logger"
-	"github.com/interlynk-io/sbommv/pkg/tcontext"
+	"github.com/viveksahu26/litemv/pkg/logger"
+	"github.com/viveksahu26/litemv/pkg/tcontext"
 )
 
 type DependencyTrackClient struct {

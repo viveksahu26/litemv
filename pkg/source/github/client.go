@@ -23,9 +23,9 @@ import (
 	"sync"
 
 	githublib "github.com/google/go-github/v62/github"
-	"github.com/interlynk-io/sbommv/pkg/logger"
-	"github.com/interlynk-io/sbommv/pkg/source"
-	"github.com/interlynk-io/sbommv/pkg/tcontext"
+	"github.com/viveksahu26/litemv/pkg/logger"
+	"github.com/viveksahu26/litemv/pkg/source"
+	"github.com/viveksahu26/litemv/pkg/tcontext"
 )
 
 type downloadWork struct {

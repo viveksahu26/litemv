@@ -18,11 +18,11 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/interlynk-io/sbommv/pkg/iterator"
-	"github.com/interlynk-io/sbommv/pkg/logger"
-	"github.com/interlynk-io/sbommv/pkg/sbom"
-	"github.com/interlynk-io/sbommv/pkg/tcontext"
-	"github.com/interlynk-io/sbommv/pkg/utils"
+	"github.com/viveksahu26/litemv/pkg/iterator"
+	"github.com/viveksahu26/litemv/pkg/logger"
+	"github.com/viveksahu26/litemv/pkg/sbom"
+	"github.com/viveksahu26/litemv/pkg/tcontext"
+	"github.com/viveksahu26/litemv/pkg/utils"
 )
 
 type DependencyTrackReporter struct {

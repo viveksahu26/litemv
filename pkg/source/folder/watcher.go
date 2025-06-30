@@ -21,11 +21,11 @@ import (
 	"path/filepath"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/interlynk-io/sbommv/pkg/iterator"
-	"github.com/interlynk-io/sbommv/pkg/logger"
-	"github.com/interlynk-io/sbommv/pkg/sbom"
-	"github.com/interlynk-io/sbommv/pkg/source"
-	"github.com/interlynk-io/sbommv/pkg/tcontext"
+	"github.com/viveksahu26/litemv/pkg/iterator"
+	"github.com/viveksahu26/litemv/pkg/logger"
+	"github.com/viveksahu26/litemv/pkg/sbom"
+	"github.com/viveksahu26/litemv/pkg/source"
+	"github.com/viveksahu26/litemv/pkg/tcontext"
 )
 
 type WatcherFetcher struct{}

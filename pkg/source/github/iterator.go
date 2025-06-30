@@ -20,9 +20,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/interlynk-io/sbommv/pkg/iterator"
-	"github.com/interlynk-io/sbommv/pkg/logger"
-	"github.com/interlynk-io/sbommv/pkg/tcontext"
+	"github.com/viveksahu26/litemv/pkg/iterator"
+	"github.com/viveksahu26/litemv/pkg/logger"
+	"github.com/viveksahu26/litemv/pkg/tcontext"
 )
 
 // // GitHubIterator iterates over SBOMs fetched from GitHub (API, Release, Tool)
