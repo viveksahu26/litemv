@@ -24,9 +24,9 @@ import (
 	"sync"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/viveksahu26/litemv/pkg/logger"
 	"github.com/viveksahu26/litemv/pkg/tcontext"
+	_ "modernc.org/sqlite"
 )
 
 const (
@@ -107,7 +107,7 @@ func (c *Cache) InitCache(ctx tcontext.TransferMetadata, outputAdapter, method s
 	dbCtx, cancel := context.WithTimeout(ctx.Context, 5*time.Second)
 	defer cancel()
 
-	db, err := sql.Open("sqlite3", path)
+	db, err := sql.Open("sqlite", path)
 	if err != nil {
 		logger.LogError(ctx.Context, err, "Failed to open SQLite database")
 		return fmt.Errorf("failed to open SQLite database: %w", err)
