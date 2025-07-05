@@ -7,9 +7,9 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "sbommv",
-	Short: "sbommv is a CLI tool for transferring SBOMs between systems",
-	Long:  `sbommv helps in transferring SBOMs from GitHub repositories to Interlynk or other systems.`,
+	Use:   "litemv",
+	Short: "litemv is a CLI tool for transferring SBOMs between systems",
+	Long:  `litemv helps in transferring SBOMs from GitHub repositories to Interlynk or other systems.`,
 }
 
 func Execute() {

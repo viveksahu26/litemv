@@ -1,4 +1,4 @@
-project_name: sbommv
+project_name: litemv
 version: 2
 
 env:
@@ -14,7 +14,7 @@ gomod:
 
 builds:
   - id: binaries
-    binary: sbommv-{{ .Os }}-{{ .Arch }}
+    binary: litemv-{{ .Os }}-{{ .Arch }}
     no_unique_dist_dir: true
     main: .
     flags:
@@ -33,8 +33,8 @@ builds:
       - CGO_ENABLED=0
 
 nfpms:
-  - id: sbommv
-    package_name: sbommv
+  - id: litemv
+    package_name: litemv
     file_name_template: "{{ .ConventionalFileName }}"
     vendor: Interlynk
     homepage: https://interlynk.io
@@ -48,8 +48,8 @@ nfpms:
       - deb
       - rpm
     contents:
-      - src: /usr/bin/sbommv-{{ .Os }}-{{ .Arch }}
-        dst: /usr/bin/sbommv
+      - src: /usr/bin/litemv-{{ .Os }}-{{ .Arch }}
+        dst: /usr/bin/litemv
         type: "symlink"
 
 archives:
@@ -67,5 +67,5 @@ release:
 sboms:
   - artifacts: binary
     documents:
-      - "${artifact}.spdx.sbom"
+      - "${artifact}.cdx.sbom.json"
     args: ["$artifact", "--output", "cyclonedx-json=$document"]
