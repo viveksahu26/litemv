@@ -1,0 +1,209 @@
+---
+name: Build SBOM | Augment | Enrich
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+
+env:
+  PARLAY_VERSION: 0.6.0
+  SBOMASM_VERSION: 0.1.5
+  SBOMQS_VERSION: 0.1.9
+  TRIVY_VERSION: 0.54.1
+
+jobs:
+  Generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Trivy
+        run: |
+          curl -L -o /tmp/trivy.tgz \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
+          tar xvf /tmp/trivy.tgz -C /tmp
+          chmod +x /tmp/trivy
+
+      - name: Get latest release tag
+        id: latest
+        run: |
+          LATEST_TAG=$(curl -s https://api.github.com/repos/viveksahu26/litemv/releases/latest | jq -r .tag_name)
+          echo "tag=${LATEST_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout litemv
+        run: |
+          curl -L -o /tmp/litemv.tgz \
+            "https://github.com/viveksahu26/litemv/archive/refs/tags/${{ steps.latest.outputs.tag }}.tar.gz"
+          tar xvf /tmp/litemv.tgz -C /tmp
+
+      - name: Generate SBOM with Trivy
+        run: |
+          /tmp/trivy fs \
+            --timeout 30m0s \
+            --parallel 0 \
+            --format cyclonedx \
+            --skip-db-update \
+            --offline-scan \
+            --output /tmp/generated-litemv-sbom.cdx.json \
+            /tmp/litemv-${{ steps.latest.outputs.tag }}
+
+          /tmp/trivy fs \
+            --timeout 30m0s \
+            --parallel 0 \
+            --format spdx-json \
+            --skip-db-update \
+            --offline-scan \
+            --output /tmp/generated-litemv-sbom.spdx.json \
+            /tmp/litemv-${{ steps.latest.outputs.tag }}
+
+      - name: Upload Generated CycloneDX SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-litemv-sbom-cyclonedx
+          path: /tmp/generated-litemv-sbom.cdx.json
+          if-no-files-found: error
+
+      - name: Upload Generated SPDX SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-litemv-sbom-spdx
+          path: /tmp/generated-litemv-sbom.spdx.json
+          if-no-files-found: error
+
+  Augment:
+    runs-on: ubuntu-latest
+    needs: Generate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Install sbomasm
+        run: |
+          curl -L -o /tmp/sbomasm \
+            "https://github.com/interlynk-io/sbomasm/releases/download/v${SBOMASM_VERSION}/sbomasm-linux-amd64"
+          chmod +x /tmp/sbomasm
+
+      - name: Augment litemv SPDX
+        run: |
+          /tmp/sbomasm edit --append --subject Document \
+              --author 'viveksahu26 (vivekkumarsahu650@gmail.com)' \
+              --supplier 'litemv by Vivek Sahu' \
+              --repository 'https://github.com/viveksahu26/litemv' \
+              --license 'MIT (https://github.com/viveksahu26/litemv/blob/main/LICENSE)' \
+              generated-litemv-sbom-spdx/generated-litemv-sbom.spdx.json > augmented_litemv-sbom.spdx.json
+
+          /tmp/sbomasm edit --subject primary-component \
+              --supplier 'litemv by Vivek Sahu' \
+              --repository 'https://github.com/viveksahu26/litemv' \
+              --license 'MIT (https://github.com/viveksahu26/litemv/blob/main/LICENSE)' \
+              augmented_litemv-sbom.spdx.json > /tmp/augmented_litemv-sbom.spdx.json
+
+      - name: Augment litemv CycloneDX
+        run: |
+          /tmp/sbomasm edit --subject Document \
+              --author 'Interlynk SBOM Reference Implementation' \
+              --supplier 'litemv by Vivek Sahu' \
+              --lifecycle 'pre-build' \
+              --repository 'https://github.com/viveksahu26/litemv' \
+              --license 'MIT (https://github.com/viveksahu26/litemv/blob/main/LICENSE)' \
+              generated-litemv-sbom-cyclonedx/generated-litemv-sbom.cdx.json > augmented_litemv-sbom.cdx.json
+
+          /tmp/sbomasm edit --subject primary-component \
+              --author 'Interlynk SBOM Reference Implementation' \
+              --supplier 'litemv by Vivek Sahu' \
+              --repository 'https://github.com/viveksahu26/litemv' \
+              --license 'MIT (https://github.com/viveksahu26/litemv/blob/main/LICENSE)' \
+              augmented_litemv-sbom.cdx.json > /tmp/augmented_litemv-sbom.cdx.json
+
+      - name: Upload Augmented SPDX SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: augmented-litemv-sbom-spdx
+          path: /tmp/augmented_litemv-sbom.spdx.json
+
+      - name: Upload Augmented CycloneDX SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: augmented-litemv-sbom-cyclonedx
+          path: /tmp/augmented_litemv-sbom.cdx.json
+
+  Enrich:
+    runs-on: ubuntu-latest
+    needs: Augment
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Install parlay
+        run: |
+          curl -Ls https://github.com/snyk/parlay/releases/download/v${PARLAY_VERSION}/parlay_Linux_x86_64.tar.gz | tar xvz -C /tmp
+          chmod +x /tmp/parlay
+
+      - name: Enrich litemv CycloneDX
+        run: |
+          /tmp/parlay ecosystems enrich \
+            augmented-litemv-sbom-cyclonedx/augmented_litemv-sbom.cdx.json > /tmp/enriched_litemv-sbom.cdx.json
+
+      - name: Enrich litemv SPDX
+        run: |
+          /tmp/parlay ecosystems enrich \
+            augmented-litemv-sbom-spdx/augmented_litemv-sbom.spdx.json > /tmp/enriched_litemv-sbom.spdx.json
+
+      - name: Upload Enriched SPDX SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: enriched-litemv-sbom-spdx
+          path: /tmp/enriched_litemv-sbom.spdx.json
+
+      - name: Upload Enriched CycloneDX SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: enriched-litemv-sbom-cyclonedx
+          path: /tmp/enriched_litemv-sbom.cdx.json
+
+      - name: Save Final SBOMs
+        run: |
+          cp /tmp/enriched_litemv-sbom.spdx.json /tmp/final_litemv-sbom.spdx.json
+          cp /tmp/enriched_litemv-sbom.cdx.json /tmp/final_litemv-sbom.cdx.json
+
+      - name: Upload Final SPDX SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-litemv-sbom-spdx
+          path: /tmp/final_litemv-sbom.spdx.json
+
+      - name: Upload Final CycloneDX SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-litemv-sbom-cyclonedx
+          path: /tmp/final_litemv-sbom.cdx.json
+
+  Verify:
+    needs: Enrich
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download SBOMs
+        uses: actions/download-artifact@v4
+
+      - name: Install sbomqs
+        run: |
+          curl -L -o /tmp/sbomqs \
+            "https://github.com/interlynk-io/sbomqs/releases/download/v${SBOMQS_VERSION}/sbomqs-linux-amd64"
+          chmod +x /tmp/sbomqs
+
+      - name: Display SBOM quality score through sbomqs
+        run: |
+          echo \`\`\` >> ${GITHUB_STEP_SUMMARY}
+          for SBOM in $(find . -iname final*.json); do
+            /tmp/sbomqs score "$SBOM" >> ${GITHUB_STEP_SUMMARY}
+          done
+          echo \`\`\` >> ${GITHUB_STEP_SUMMARY}
