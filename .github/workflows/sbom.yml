@@ -35,29 +35,33 @@ jobs:
 
       - name: Checkout litemv
         run: |
-          curl -L -o /tmp/litemv.tgz \
+            curl -L -o /tmp/litemv.tgz \
             "https://github.com/viveksahu26/litemv/archive/refs/tags/${{ steps.latest.outputs.tag }}.tar.gz"
-          tar xvf /tmp/litemv.tgz -C /tmp
+            mkdir -p /tmp/litemv-src
+            tar xvf /tmp/litemv.tgz -C /tmp/litemv-src
+            echo "EXTRACTED_DIR=$(ls -d /tmp/litemv-src/*)" >> "$GITHUB_ENV"
 
       - name: Generate SBOM with Trivy
         run: |
-          /tmp/trivy fs \
+            echo "Scanning extracted directory: $EXTRACTED_DIR"
+            /tmp/trivy fs \
             --timeout 30m0s \
             --parallel 0 \
             --format cyclonedx \
             --skip-db-update \
             --offline-scan \
             --output /tmp/generated-litemv-sbom.cdx.json \
-            /tmp/litemv-${{ steps.latest.outputs.tag }}
+            "$EXTRACTED_DIR"
 
-          /tmp/trivy fs \
+            /tmp/trivy fs \
             --timeout 30m0s \
             --parallel 0 \
             --format spdx-json \
             --skip-db-update \
             --offline-scan \
             --output /tmp/generated-litemv-sbom.spdx.json \
-            /tmp/litemv-${{ steps.latest.outputs.tag }}
+            "$EXTRACTED_DIR"
+
 
       - name: Upload Generated CycloneDX SBOM
         uses: actions/upload-artifact@v4
