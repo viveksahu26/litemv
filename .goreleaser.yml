@@ -65,7 +65,7 @@ release:
   draft: true
 
 sboms:
-  -
-    artifacts: binary
+  - artifacts: binary
     documents:
       - "${artifact}.spdx.sbom"
+    args: ["$artifact", "--output", "cyclonedx-json=$document"]
