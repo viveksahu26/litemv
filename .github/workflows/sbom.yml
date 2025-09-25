@@ -10,6 +10,8 @@ permissions:
   contents: write
 
 env:
+  TOOL_NAME: ${{ github.repository }}
+  SBOM_ENV: default
   PARLAY_VERSION: 0.8.0
   SBOMASM_VERSION: 1.0.8
   SBOMQS_VERSION: 1.2.0
@@ -213,12 +215,16 @@ jobs:
           --input-adapter=folder \
           --in-folder-path="./" \
           --output-adapter=interlynk \
+          --out-interlynk-project-name=${TOOL_NAME} \
+          --out-interlynk-project-env=${SBOM_ENV}
           --out-interlynk-url="https://api.interlynk.io/lynkapi" --dry-run
           
           /tmp/sbommv transfer \
           --input-adapter=folder \
           --in-folder-path="./" \
           --output-adapter=interlynk \
+          --out-interlynk-project-name=${TOOL_NAME} \
+          --out-interlynk-project-env=${SBOM_ENV}
           --out-interlynk-url="https://api.interlynk.io/lynkapi"
 
   Release:
