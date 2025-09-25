@@ -213,8 +213,7 @@ jobs:
           --input-adapter=folder \
           --in-folder-path="./" \
           --output-adapter=interlynk \
-          --out-interlynk-url="https://api.interlynk.io/lynkapi"
-          --dry-run
+          --out-interlynk-url="https://api.interlynk.io/lynkapi" --dry-run
           
           /tmp/sbommv transfer \
           --input-adapter=folder \
