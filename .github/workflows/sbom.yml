@@ -205,6 +205,9 @@ jobs:
           chmod +x /tmp/sbommv
 
       - name: Move SBOM to Interlynk Platform
+        env:
+          INTERLYNK_SECURITY_TOKEN: ${{ secrets.INTERLYNK_SECURITY_TOKEN }}
+
         run: |
           /tmp/sbommv transfer \
           --input-adapter=folder \
