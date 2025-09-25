@@ -33,6 +33,7 @@ jobs:
         run: |
           LATEST_TAG=$(curl -s https://api.github.com/repos/viveksahu26/litemv/releases/latest | jq -r .tag_name)
           echo "tag=${LATEST_TAG}" >> "$GITHUB_OUTPUT"
+          echo $GITHUB_OUTPUT
 
       - name: Download litemv release
         run: |
@@ -92,7 +93,6 @@ jobs:
           /tmp/sbomasm edit --append --subject Document \
               --author 'Interlynk Engineering' \
               --supplier 'litemv project (https://github.com/viveksahu26/litemv)' \
-              --repository 'https://github.com/viveksahu26/litemv.git' \
               --license 'Apache-2.0' \
               generated-litemv-sbom.spdx.json > augmented-litemv-sbom.spdx.json
 
@@ -180,11 +180,28 @@ jobs:
 
       - name: Display SBOM Quality Score
         run: |
-          echo \`\`\` >> ${GITHUB_STEP_SUMMARY}
-          for SBOM in $(find . -iname enriched*.json); do
-            /tmp/sbomqs score "$SBOM" >> ${GITHUB_STEP_SUMMARY}
-          done
-          echo \`\`\` >> ${GITHUB_STEP_SUMMARY}
+
+          # use GITHUB_STEP_SUMMARY when available, otherwise write to /tmp/gh_step_summary
+            SUMMARY="${GITHUB_STEP_SUMMARY:-/tmp/gh_step_summary}"
+
+            # add fence start
+            echo '```' >> "$SUMMARY"
+
+            # score each matching SBOM safely, handling spaces in names
+            find /tmp -maxdepth 1 -iname 'enriched*.json' -print0 \
+            | while IFS= read -r -d '' SBOM; do
+                # ensure the scorer exists
+                if [[ -x /tmp/sbomqs ]]; then
+                    /tmp/sbomqs score "$SBOM" >> "$SUMMARY"
+                else
+                    echo "sbomqs not found at /tmp/sbomqs" >> "$SUMMARY"
+                    exit 2
+                fi
+                done
+
+            # add fence end
+            echo '```' >> "$SUMMARY"
+            cat $SUMMARY
 
   Release:
     needs: [Verify, Generate]
