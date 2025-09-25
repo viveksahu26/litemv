@@ -14,6 +14,7 @@ env:
   SBOMASM_VERSION: 1.0.8
   SBOMQS_VERSION: 1.2.0
   TRIVY_VERSION: 0.66.0
+  SBOMMV_VERSION: 0.0.9
 
 jobs:
   Generate:
@@ -181,27 +182,42 @@ jobs:
       - name: Display SBOM Quality Score
         run: |
 
-          # use GITHUB_STEP_SUMMARY when available, otherwise write to /tmp/gh_step_summary
-            SUMMARY="${GITHUB_STEP_SUMMARY:-/tmp/gh_step_summary}"
+          for sbom in *.json; do
+            echo "Scoring $sbom"
+            /tmp/sbomqs score -b "$sbom"
+          done
 
-            # add fence start
-            echo '```' >> "$SUMMARY"
+  Upload:
+    needs: Enrich
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-            # score each matching SBOM safely, handling spaces in names
-            find /tmp -maxdepth 1 -iname 'enriched*.json' -print0 \
-            | while IFS= read -r -d '' SBOM; do
-                # ensure the scorer exists
-                if [[ -x /tmp/sbomqs ]]; then
-                    /tmp/sbomqs score "$SBOM" >> "$SUMMARY"
-                else
-                    echo "sbomqs not found at /tmp/sbomqs" >> "$SUMMARY"
-                    exit 2
-                fi
-                done
+      - name: Download SBOMs
+        uses: actions/download-artifact@v4
+        with:
+          name: enriched-sboms
 
-            # add fence end
-            echo '```' >> "$SUMMARY"
-            cat $SUMMARY
+      - name: Install sbommv
+        run: |
+          curl -L -o /tmp/sbommv \
+            "https://github.com/interlynk-io/sbommv/releases/download/v${SBOMMV_VERSION}/sbommv-linux-amd64"
+          chmod +x /tmp/sbommv
+
+      - name: Move SBOM to Interlynk Platform
+        run: |
+          /tmp/sbommv transfer \
+          --input-adapter=folder \
+          --in-folder-path="./" \
+          --output-adapter=interlynk \
+          --out-interlynk-url="https://api.interlynk.io/lynkapi"
+          --dry-run
+          
+          /tmp/sbommv transfer \
+          --input-adapter=folder \
+          --in-folder-path="./" \
+          --output-adapter=interlynk \
+          --out-interlynk-url="https://api.interlynk.io/lynkapi"
 
   Release:
     needs: [Verify, Generate]
